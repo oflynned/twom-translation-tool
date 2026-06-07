@@ -6,10 +6,15 @@ A small desktop tool for translating `This War of Mine` language files. It impor
 
 - Import TWoM `.lang` or `.lngp` files
 - Export and reopen a working CSV with `key`, `source`, and `translation` columns
-- Browse strings by group and search/filter untranslated entries
+- Automatically reopen the last working CSV on app launch when it is still available
+- Browse strings by group and work through queue filters for `All`, `Untranslated`, `Draft`, `Reviewed`, and `Warnings`
 - Edit translations in the app or externally in Excel/LibreOffice
+- Review inline warnings for placeholders, line breaks, whitespace, and inconsistent duplicates
+- Reuse suggestions from identical source strings or similar keys in the same group
+- Copy the source text into the translation field, then tweak only the words that changed
+- Insert source or project-wide placeholders like `{0}`, `{ms|}`, `%s`, `\n`, or `^CharacterName^` from the editor menu
 - Pack translated CSV content back into a binary `.lang` file
-- Optional AI translation through the Anthropic Messages API
+- Optional AI translation with Anthropic, OpenAI, Google Gemini, or OpenRouter using your own API key
 
 ## Requirements
 
@@ -46,22 +51,54 @@ Working CSV files use these columns:
 
 Leave `key` unchanged. Empty `translation` cells will fall back to the source text when packing unless they are filled later.
 
-## AI Translation
-
-The app can translate one string at a time or batch-translate empty strings using Anthropic.
-
-1. Open the settings window in the app.
-2. Enter your Anthropic API key.
-3. Set the target language.
-4. Use the single or batch AI translation actions.
-
-The API key and target language are stored locally in:
+The app also writes an optional sidecar metadata file next to the CSV:
 
 ```text
-~/.twom_v5.json
+<your-file>.csv.twom-meta.json
 ```
 
-AI translation uses API credits. Review generated translations before packing them into a release.
+This stores review states plus UI state like the last selected group, filter, search, and active key. The CSV format itself stays unchanged.
+
+## Keyboard Shortcuts
+
+- `Ctrl+I` import `.lang`
+- `Ctrl+O` open CSV
+- `Ctrl+S` save CSV
+- `Ctrl+P` pack to `.lang`
+- `Ctrl+F` or `F6` focus search
+- `Ctrl+E` focus the translation editor
+- `Ctrl+Enter` save current translation
+- `Ctrl+Shift+Enter` save and mark reviewed
+- `Ctrl+Up` / `Ctrl+Down` move to previous or next visible row
+- `Ctrl+G` jump to the next untranslated string
+- `Ctrl+Shift+W` jump to the next warning
+- `Ctrl+1` to `Ctrl+5` switch queue filters: All, Untranslated, Draft, Reviewed, Warnings
+
+## AI Translation
+
+The app can translate one string at a time, review a draft translation with AI feedback, or batch-translate empty strings using multiple providers.
+
+Supported providers:
+
+- Anthropic
+- OpenAI
+- Google Gemini
+- OpenRouter
+
+1. Open the settings window in the app.
+2. Pick the active AI provider.
+3. Enter that provider's API key.
+4. Optionally change the model id for that provider.
+5. Set the target language in the main window.
+6. Use `AI suggest` for a draft translation, `AI feedback` for review/ideation on your current translation, or the batch AI action for empty strings.
+
+The selected provider, per-provider API keys, per-provider model ids, and target language are stored locally in:
+
+```text
+~/.twom.json
+```
+
+AI translation uses your own provider credits. Review generated translations before packing them into a release.
 
 ## Project Files
 
@@ -83,3 +120,17 @@ per record:
 ```
 
 Generated CSV files are written with UTF-8 BOM encoding so spreadsheet tools on Windows open them cleanly.
+
+## Git Setup
+
+This folder currently contains the project files, but it may still need to be initialized as a Git repository:
+
+```powershell
+git init
+git add .
+git commit -m "Initial commit"
+```
+
+## License
+
+No license has been added yet. Add one before publishing if you want others to use, modify, or redistribute the project.
